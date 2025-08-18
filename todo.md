@@ -1,5 +1,3 @@
-- [ ] deploy to vercel
 - [ ] refactor all project
 - [ ] add tests
-- [ ] add documentation
 - [ ] add logging

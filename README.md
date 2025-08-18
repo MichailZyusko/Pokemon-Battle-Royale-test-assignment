@@ -1,67 +1,49 @@
 # Pokémon Battle Royale
 
-A React app where users can vote for their favorite Pokémon in head-to-head battles with **real-time voting updates** via WebSocket connection to a public server.
+A real-time voting application where users can participate in Pokémon battles and watch live voting results from users worldwide.
 
-## 🎯 Features
+## 🚀 Features
 
-### Core Requirements
-- **Live Pokémon Display**: Shows Bulbasaur vs Pikachu (hardcoded) with data from PokéAPI
-- **Voting System**: One vote per user with vote persistence and real-time updates
-- **Real-time Sync**: **True real-time** WebSocket connection to public server for live vote updates across all users
-- **Clean State Management**: Uses React hooks for predictable state management
-
-### Bonus Features ✨
-- **New Battle Button**: Start random battles between different Pokémon
-- **Smooth Animations**: Transitions when switching from voting to results
-- **Duplicate Vote Warning**: Alerts users if they try to vote from multiple tabs
-- **Modern UI**: Beautiful, responsive design with Tailwind CSS
-- **Error Handling**: Graceful handling of API failures and loading states
-
-## 🌍 Real-Time Voting
-
-This application now features **true real-time voting** across multiple users:
-
-- **Public WebSocket Server**: Connects to `wss://echo.websocket.org/` for real-time communication
-- **Battle Rooms**: Each Pokémon battle creates a unique room/channel for isolated voting
-- **Live Vote Updates**: See votes from other users instantly across different browser tabs/devices
-- **User Identification**: Each user gets a unique ID for vote tracking
-- **Automatic Reconnection**: Handles connection drops gracefully with auto-reconnect
-- **Heartbeat System**: Keeps connections alive with periodic heartbeat messages
-
-### How to Test Real-Time Voting
-
-1. Open the app in multiple browser tabs or different browsers
-2. Start the same battle (same Pokémon pair) in all tabs
-3. Vote from one tab and watch the results update instantly in all other tabs
-4. The voting is truly synchronized across all connected users!
+- **Real-time Voting**: Live voting system with WebSocket integration
+- **Interactive Battle Interface**: Beautiful Pokémon card selection interface
+- **Live Results**: Real-time vote counting and statistics
+- **Responsive Design**: Mobile-first design with Tailwind CSS
+- **Duplicate Vote Prevention**: Smart detection of duplicate votes across tabs
+- **Battle Management**: Start new battles with random Pokémon selections
+- **Connection Status**: Real-time connection monitoring with visual feedback
 
 ## 🏗️ Architecture
 
-This project follows **Feature-Sliced Design (FSD)** architecture:
+The application follows a feature-based architecture with clear separation of concerns:
 
 ```
 src/
-├── app/           # App initialization and global providers
-├── pages/         # Page components
-├── widgets/       # Complex UI blocks combining features
-├── features/      # Business logic features (voting)
-├── entities/      # Business entities (Pokemon)
-└── shared/        # Reusable code
-    ├── api/       # API layer
-    ├── hooks/     # Custom hooks
-    ├── lib/       # Utilities
-    ├── types/     # TypeScript types
-    ├── ui/        # UI components
-    └── constants/ # App constants
+├── app/                   # Application entry point
+├── entities/              # Domain entities (Pokémon)
+├── features/              # Feature modules (voting system)
+├── pages/                 # Page components
+├── shared/                # Shared utilities and components
+│   ├── api/               # API client and endpoints
+│   ├── constants/         # Application constants
+│   ├── dto/               # Data Transfer Objects
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility libraries
+│   ├── types/             # TypeScript type definitions
+│   └── ui/                # Reusable UI components
+└── widgets/               # Complex UI compositions
 ```
 
-## 🚀 Getting Started
+## 🛠️ Technology Stack
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
+- **Frontend**: React 18 with TypeScript
+- **State Management**: TanStack Query (React Query)
+- **Styling**: Tailwind CSS with custom components
+- **Real-time**: WebSocket integration
+- **UI Components**: Radix UI primitives with custom styling
+- **Build Tool**: Create React App
+- **Linting**: ESLint with Airbnb configuration
 
-### Installation
+## 📦 Installation
 
 1. Clone the repository:
 ```bash
@@ -79,98 +61,40 @@ npm install
 npm start
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to view the app
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Available Scripts
+## 🚀 Available Scripts
 
-- `npm start` - Runs the app in development mode
-- `npm build` - Builds the app for production
-- `npm test` - Launches the test runner
-- `npm run lint` - Runs ESLint
-- `npm run lint:fix` - Fixes ESLint errors automatically
-
-## 🔧 Technical Stack
-
-- **Frontend**: React 18 with TypeScript
-- **State Management**: React Query + React hooks
-- **HTTP Client**: Axios
-- **Styling**: Tailwind CSS
-- **Linting**: ESLint with TypeScript support
-- **Architecture**: Feature-Sliced Design (FSD)
+- `npm start` - Start development server
+- `npm build` - Build for production
+- `npm test` - Run tests
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues automatically
 
 ## 🎮 How to Use
 
-1. **View the Battle**: See two Pokémon face off with their stats
-2. **Vote**: Click on a Pokémon card to select it, then click "Vote"
-3. **Watch Results**: See real-time vote updates from simulated users
-4. **New Battle**: Click "Start New Battle" to fight with random Pokémon
-5. **Multiple Tabs**: Try opening multiple tabs - the app warns about duplicate votes!
+1. **Join a Battle**: The application automatically loads a random Pokémon battle
+2. **Select Your Champion**: Click on a Pokémon card to select it
+3. **Cast Your Vote**: Click the "Vote" button to submit your choice
+4. **Watch Live Results**: See real-time voting statistics and results
+5. **Start New Battle**: Click "Start New Battle" to begin a new round
 
-## 🔌 WebSocket Simulation
+## 🧪 Testing
 
-Since the requirement was to implement WebSocket "WITHOUT a server", this app simulates WebSocket functionality:
+Run the test suite:
+```bash
+npm test
+```
 
-- **Mock WebSocket Service**: Simulates connection, message broadcasting
-- **Auto-Generated Votes**: Simulates other users voting with random delays
-- **Real-time Updates**: All connected clients receive vote updates instantly
-- **Connection Status**: Shows connection state with retry functionality
+The application includes:
+- Unit tests for core functionality
+- Component testing with React Testing Library
 
-## 📱 Responsive Design
+## 🚀 Deployment
 
-The app is fully responsive and works on:
-- Desktop computers
-- Tablets
-- Mobile phones
+Build the production version:
+```bash
+npm run build
+```
 
-## 🎨 UI/UX Features
-
-- **Loading States**: Smooth loading animations while fetching data
-- **Error Handling**: User-friendly error messages with retry options
-- **Hover Effects**: Interactive card animations
-- **Winner Highlighting**: Visual celebration for the winning Pokémon
-- **Vote Progress Bars**: Animated progress visualization
-- **Connection Indicators**: Visual feedback for WebSocket status
-
-## 🐛 Error Handling
-
-The app gracefully handles:
-- API failures (PokéAPI unavailable)
-- Network connectivity issues
-- WebSocket connection problems
-- Invalid Pokémon data
-- Duplicate voting attempts
-
-## 📦 Project Structure Details
-
-### Key Components
-
-- **BattleWidget**: Main widget orchestrating the battle
-- **VotingInterface**: Handles voting UI and real-time updates
-- **PokemonCard**: Displays individual Pokémon with stats
-- **WebSocket Service**: Manages simulated real-time connections
-
-### Custom Hooks
-
-- **usePokemon**: Fetches Pokémon data with caching
-- **useVoting**: Manages voting state and WebSocket integration
-- **useWebSocket**: Handles WebSocket connection lifecycle
-- **useBattleManager**: Controls battle flow and Pokémon selection
-
-## 🎯 Assessment Criteria Coverage
-
-- ✅ **React Architecture**: Clean FSD structure with reusable components
-- ✅ **API Usage**: Efficient PokéAPI integration with React Query
-- ✅ **Real-time Sync**: Simulated WebSocket with live vote updates
-- ✅ **Voting Logic**: One vote per user, visual feedback, winner detection
-- ✅ **Error Handling**: Comprehensive error states and loading management
-- ✅ **Bonus Creativity**: Random battles, animations, duplicate vote warnings
-
-## 🚀 Future Enhancements
-
-- Real WebSocket server integration
-- User authentication and profiles
-- Battle history and statistics
-- Tournament mode with brackets
-- More Pokémon stats and abilities
-- Sound effects and animations
-- Leaderboards and achievements
+The build output will be in the `build/` directory, ready for deployment to any static hosting service.

@@ -108,7 +108,7 @@ export function PokemonCard({
             className={cardClasses}
             onClick={onClick}
             disabled={disabled}
-            aria-label={`${pokemon.name} Pokémon card${isSelected ? ', selected' : ''}${isWinner ? ', winner' : ''}${isTied && !isWinner ? ', tied' : ''}`}
+            aria-label={`${pokemon.name} Pokémon card${isSelected ? ', selected' : ''}${isWinner && !isTied ? ', winner' : ''}${isTied && isWinner ? ', tied' : ''}`}
           >
             <Card className="h-full">
               <PokemonCardStatusBadge isWinner={isWinner} isTied={isTied} />

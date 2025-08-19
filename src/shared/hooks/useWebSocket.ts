@@ -8,7 +8,6 @@ export const useWebSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const handlersRef = useRef<Set<(message: WebSocketMessage) => void>>(new Set());
-  console.log('🚀 ~ handlersRef:', handlersRef);
 
   useEffect(() => {
     let mounted = true;
@@ -58,7 +57,6 @@ export const useWebSocket = () => {
   }, []);
 
   const send = useCallback((message: WebSocketMessage) => {
-    console.log('🚀 ~ send ~ message:', message);
     if (!isConnected) {
       console.warn('Cannot send message: WebSocket not connected');
       return;

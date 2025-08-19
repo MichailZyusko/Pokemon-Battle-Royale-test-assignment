@@ -30,3 +30,6 @@ export {
   ButtonSkeleton,
   TextSkeleton,
 } from './SkeletonLoader';
+export {
+  Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
+} from './Tooltip';

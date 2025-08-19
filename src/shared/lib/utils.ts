@@ -48,7 +48,7 @@ export const getRandomPokemonIds = (count: number = DEFAULT_BATTLEFIELD_SIZE): n
 // Battle result storage functions
 export interface BattleResult {
   battleKey: string;
-  winner: number | 'draw' | null;
+  winners: number[];
   voteStats: { [pokemonId: number]: { votes: number; percentage: number } };
   totalVotes: number;
   timestamp: number;

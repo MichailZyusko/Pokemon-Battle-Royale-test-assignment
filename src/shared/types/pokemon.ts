@@ -26,11 +26,17 @@ export type BattleState = {
   userVote: number | null;
   voteStats: VoteStats;
   totalVotes: number;
-  winner: number | 'draw' | null;
+  winners: number[];
   hasVoted: boolean;
 };
 
 export interface WebSocketMessage {
-  type: 'vote' | 'stats' | 'new_battle' | 'join_battle' | 'heartbeat';
-  payload: VoteData | VoteStats | { pokemon1Id: number; pokemon2Id: number } | { battleId: string } | unknown;
+  type: WebSocketEventType;
+  payload: VoteData | VoteStats | { battleId: string } | unknown;
+}
+
+export enum WebSocketEventType {
+  VOTE = 'vote',
+  NEW_BATTLE = 'new_battle',
+  HEARTBEAT = 'heartbeat',
 }

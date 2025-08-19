@@ -10,13 +10,6 @@ export const DEFAULT_BATTLEFIELD_SIZE = 2;
 
 export const POKEMON_API_BASE_URL = 'https://pokeapi.co/api/v2';
 
-// TODO
-export const WEBSOCKET_EVENTS = {
-  VOTE: 'vote',
-  STATS: 'stats',
-  NEW_BATTLE: 'new_battle',
-} as const;
-
 export const LOCAL_STORAGE_KEYS = {
   USER_ID: 'pokemon_battle_user_id',
   VOTED_BATTLES: 'pokemon_battle_voted_battles',

@@ -1,12 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PokemonCard } from '../../../entities/pokemon/ui/PokemonCard';
 import { Button } from '../../../shared/ui/Button';
 import { Alert, AlertDescription } from '../../../shared/ui/Alert';
 import { useVoting } from '../lib/useVoting';
 import { VotingResultsTable } from './VotingResultsTable';
 import { PokemonDTO } from '../../../shared/dto/pokemon.dto';
-import { cn } from '../../../shared/lib/cn';
-import { WarningIcon, InfoIcon } from '../../../assets/icons/index';
+import { WarningIcon } from '../../../assets/icons/index';
+
+type WebSocketStatusProps = {
+  isConnected: boolean;
+};
+
+function WebSocketStatus({ isConnected }: WebSocketStatusProps) {
+  if (!isConnected) {
+    return (
+      <Alert variant="warning" className="mb-8">
+        <AlertDescription>
+          <div className="flex items-center">
+            <WarningIcon className="w-4 h-4 mr-2" />
+            <span>
+              Connecting to real-time voting server...
+              <p className="text-sm text-gray-500">
+                Please wait for connection to enable live voting
+              </p>
+            </span>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <Alert variant="success" className="mb-8">
+      <AlertDescription>
+        <div className="flex items-center">
+          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" aria-hidden="true" />
+          <span>🌍 Connected to real-time voting! Votes from other users will appear instantly.</span>
+        </div>
+      </AlertDescription>
+    </Alert>
+  );
+}
 
 type VotingInterfaceProps = {
   pokemons: PokemonDTO[];
@@ -22,87 +56,24 @@ export function VotingInterface({
   });
 
   const [selectedPokemon, setSelectedPokemon] = useState<number | null>(null);
-  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
-  const [showResultsAnimation, setShowResultsAnimation] = useState(false);
-
-  // Check for duplicate votes
-  useEffect(() => {
-    const checkDuplicate = () => {
-      const isDuplicate = voting.checkForDuplicateVote();
-      if (isDuplicate) {
-        setShowDuplicateWarning(true);
-        setTimeout(() => setShowDuplicateWarning(false), 5000);
-      }
-    };
-
-    const interval = setInterval(checkDuplicate, 3000);
-    return () => clearInterval(interval);
-  }, [voting]);
-
-  // Show results animation after voting
-  useEffect(() => {
-    if (voting.hasVoted && voting.totalVotes > 0) {
-      setShowResultsAnimation(true);
-    }
-  }, [voting.hasVoted, voting.totalVotes]);
 
   const handlePokemonSelect = (pokemonId: number) => {
     if (!voting.canVote) return;
+
     setSelectedPokemon(pokemonId);
   };
 
   const handleVote = () => {
     if (!selectedPokemon || !voting.canVote) return;
+
     voting.vote(selectedPokemon);
     setSelectedPokemon(null);
   };
 
   const handleNewBattle = () => {
     setSelectedPokemon(null);
-    setShowResultsAnimation(false);
 
     onNewBattle();
-  };
-
-  const getConnectionStatus = () => {
-    if (!voting.isConnected) {
-      return (
-        <Alert variant="warning" className="mb-8">
-          <AlertDescription>
-            <div className="flex items-center">
-              <WarningIcon className="w-4 h-4 mr-2" />
-              <span>Connecting to real-time voting server...</span>
-            </div>
-          </AlertDescription>
-        </Alert>
-      );
-    }
-
-    return (
-      <Alert variant="success" className="mb-8">
-        <AlertDescription>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" aria-hidden="true" />
-            <span>🌍 Connected to real-time voting! Votes from other users will appear instantly.</span>
-          </div>
-        </AlertDescription>
-      </Alert>
-    );
-  };
-
-  const getDuplicateWarning = () => {
-    if (!showDuplicateWarning) return null;
-
-    return (
-      <Alert variant="destructive" className="mb-4 animate-pulse">
-        <AlertDescription>
-          <div className="flex items-center">
-            <InfoIcon className="w-4 h-4 mr-2" />
-            <span>You&apos;ve already voted in this battle from another tab!</span>
-          </div>
-        </AlertDescription>
-      </Alert>
-    );
   };
 
   return (
@@ -125,27 +96,29 @@ export function VotingInterface({
         )}
       </header>
 
-      {getConnectionStatus()}
-      {getDuplicateWarning()}
+      <WebSocketStatus isConnected={voting.isConnected} />
 
-      <section className="flex flex-col md:flex-row items-center justify-center mb-8" aria-label="Pokémon Battle Arena">
+      <section
+        className="flex flex-col md:flex-row items-center justify-center mb-8"
+        aria-label="Pokémon Battle Arena"
+      >
         {pokemons.map((pokemon, index) => (
           <React.Fragment key={pokemon.id}>
-            <div className={cn('transition-all duration-500', {
-              'transform scale-105': showResultsAnimation,
-            })}
-            >
+            <div className="transition-all duration-500 transform scale-105">
               <PokemonCard
                 pokemon={pokemon}
                 isSelected={selectedPokemon === pokemon.id}
-                isWinner={voting.winner === pokemon.id}
-                isTied={voting.winner === 'draw' && (voting.voteStats[pokemon.id]?.votes || 0) > 0}
+                isWinner={voting.winners?.includes(pokemon.id)}
+                isTied={voting.winners?.length > 1 && voting.winners?.includes(pokemon.id)}
                 onClick={() => handlePokemonSelect(pokemon.id)}
                 disabled={!voting.canVote}
               />
             </div>
             {index < pokemons.length - 1 && (
-              <div className="flex items-center justify-center w-32 flex-shrink-0" aria-hidden="true">
+              <div
+                className="flex items-center justify-center w-32 flex-shrink-0"
+                aria-hidden="true"
+              >
                 <div className="text-6xl font-bold text-gray-400 select-none">VS</div>
               </div>
             )}
@@ -183,22 +156,14 @@ export function VotingInterface({
             Start New Battle
           </Button>
         )}
-
-        {!voting.isConnected && (
-          <p className="text-sm text-gray-500">
-            Waiting for connection to enable live voting...
-          </p>
-        )}
       </section>
 
-      {/* Voting Results Table */}
       <VotingResultsTable
         pokemons={pokemons}
         voteStats={voting.voteStats}
         totalVotes={voting.totalVotes}
-        winner={voting.winner}
+        winners={voting.winners}
       />
-
     </article>
   );
 }

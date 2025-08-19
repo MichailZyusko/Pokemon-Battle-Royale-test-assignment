@@ -1,6 +1,5 @@
-import React from 'react';
-import { VoteStats } from '../../../shared/types/pokemon';
 import { PokemonDTO } from '../../../shared/dto/pokemon.dto';
+import { VoteStats } from '../../../shared/types/pokemon';
 import { cn } from '../../../shared/lib/cn';
 import {
   Table,
@@ -10,27 +9,25 @@ import {
   TableHeader,
   TableRow,
 } from '../../../shared/ui/Table';
-import { Badge } from '../../../shared/ui/Badge';
-import { Progress } from '../../../shared/ui/Progress';
 import { StarIcon, ClockIcon } from '../../../assets/icons/index';
 
 type VotingResultsTableProps = {
   pokemons: PokemonDTO[];
   voteStats: VoteStats;
   totalVotes: number;
-  winner: number | 'draw' | null;
+  winners: number[];
 };
 
 export function VotingResultsTable({
   pokemons,
   voteStats,
   totalVotes,
-  winner,
+  winners,
 }: VotingResultsTableProps) {
   const tableData = pokemons.map((pokemon) => {
     const stats = voteStats[pokemon.id] || { votes: 0, percentage: 0 };
-    const isWinner = winner === pokemon.id;
-    const isTied = winner === 'draw' && stats.votes > 0;
+    const isWinner = winners.includes(pokemon.id);
+    const isTied = winners.length > 1 && winners.includes(pokemon.id);
 
     return {
       pokemon,
@@ -79,7 +76,7 @@ export function VotingResultsTable({
               <TableRow
                 key={row.pokemon.id}
                 className={cn('transition-colors duration-200', {
-                  'bg-green-50 border-l-4 border-green-400': row.isWinner,
+                  'bg-green-50 border-l-4 border-green-400': row.isWinner && !row.isTied,
                   'bg-yellow-50 border-l-4 border-yellow-400': row.isTied,
                   'hover:bg-gray-50': !row.isWinner && !row.isTied,
                 })}
@@ -91,12 +88,6 @@ export function VotingResultsTable({
                         className="h-12 w-12 object-contain"
                         src={row.pokemon.image}
                         alt={row.pokemon.name}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.src !== row.pokemon.image) {
-                            target.src = row.pokemon.image;
-                          }
-                        }}
                       />
                     </div>
                     <div className="ml-4">
@@ -112,90 +103,97 @@ export function VotingResultsTable({
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-center">
-                  <div className="text-lg font-semibold text-gray-900">
-                    {row.stats.votes}
+                  <div className="flex items-center justify-center">
+                    <span className="text-lg font-semibold text-gray-900">
+                      {row.stats.votes}
+                    </span>
+                    {row.isWinner && (
+                    <StarIcon className="ml-2 h-5 w-5 text-yellow-500" />
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-center">
-                  <div className="text-lg font-semibold text-gray-900">
+                  <span className="text-sm font-medium text-gray-900">
                     {row.stats.percentage.toFixed(1)}
                     %
+                  </span>
+                </TableCell>
+                <TableCell className="w-32">
+                  <div className="relative">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={cn('h-2 rounded-full transition-all duration-500', {
+                          'bg-yellow-500': row.isTied,
+                          'bg-green-500': row.isWinner && !row.isTied,
+                          'bg-blue-500': !row.isWinner && !row.isTied,
+                        })}
+                        style={{ width: `${row.stats.percentage}%` }}
+                      />
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  <Progress
-                    value={row.stats.percentage}
-                    className={cn('h-3', {
-                      '[&>div]:bg-green-500': row.isWinner,
-                      '[&>div]:bg-yellow-500': row.isTied,
-                      '[&>div]:bg-blue-500': !row.isWinner && !row.isTied,
-                    })}
-                    aria-label={`Vote progress for ${row.pokemon.name}: ${row.stats.percentage.toFixed(1)}%`}
-                  />
-                </TableCell>
-                <TableCell className="whitespace-nowrap text-center">
-                  {(() => {
-                    if (row.isWinner) {
-                      return (
-                        <Badge variant="winning" className="inline-flex items-center">
-                          <StarIcon className="w-3 h-3 mr-1" />
-                          Winning
-                        </Badge>
-                      );
-                    }
-                    if (row.isTied) {
-                      return (
-                        <Badge variant="tied" className="inline-flex items-center">
-                          <ClockIcon className="w-3 h-3 mr-1" />
-                          Tied
-                        </Badge>
-                      );
-                    }
-                    return (
-                      <Badge variant="competing">
-                        Competing
-                      </Badge>
-                    );
-                  })()}
+                <TableCell className="text-center">
+                  {row.isWinner && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {winners.length === 1 ? 'Winner!' : 'Tied!'}
+                  </span>
+                  )}
+                  {row.isTied && !row.isWinner && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    Tied!
+                  </span>
+                  )}
+                  {!row.isWinner && !row.isTied && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <ClockIcon className="mr-1 h-3 w-3" />
+                    Waiting
+                  </span>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-        {winner && (
-          <footer className={cn('border-t px-6 py-3', {
-            'bg-green-50 border-green-200': winner !== 'draw',
-            'bg-yellow-50 border-yellow-200': winner === 'draw',
+        {winners.length > 0 && (
+          <div className={cn('px-6 py-4 border-t', {
+            'bg-green-50 border-green-200': winners.length === 1,
+            'bg-yellow-50 border-yellow-200': winners.length > 1,
           })}
           >
-            <div
-              className={cn('flex items-center justify-center', {
-                'text-green-700': winner !== 'draw',
-                'text-yellow-700': winner === 'draw',
-              })}
-              role="status"
-              aria-live="polite"
+            <div className={cn('text-center font-semibold', {
+              'text-green-700': winners.length === 1,
+              'text-yellow-700': winners.length > 1,
+            })}
             >
-              {winner === 'draw' ? (
+              {winners.length === 1 ? (
                 <>
-                  <ClockIcon className="w-5 h-5 mr-2" />
-                  <span className="font-semibold">
-                    It&apos;s a draw! Multiple Pokémon are tied for the lead.
-                  </span>
+                  🏆 Winner:
+                  {' '}
+                  {pokemons.find((p) => p.id === winners[0])?.name}
                 </>
               ) : (
                 <>
-                  <StarIcon className="w-5 h-5 mr-2" />
-                  <span className="font-semibold">
-                    {pokemons.find((p) => p.id === winner)?.name}
-                    {' '}
-                    is currently winning!
-                  </span>
+                  🤝 Draw between
+                  {' '}
+                  {winners.length}
+                  {' '}
+                  Pokémon
+                  <div className="text-sm font-normal mt-1">
+                    {winners.map((winnerId, index) => {
+                      const pokemon = pokemons.find((p) => p.id === winnerId);
+                      return (
+                        <span key={winnerId}>
+                          {pokemon?.name}
+                          {index < winners.length - 1 ? ', ' : ''}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </>
               )}
             </div>
-          </footer>
+          </div>
         )}
       </div>
     </section>

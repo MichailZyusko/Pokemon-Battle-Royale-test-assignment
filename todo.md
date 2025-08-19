@@ -1,3 +1,0 @@
-- [ ] refactor all project
-- [ ] add tests
-- [ ] add logging

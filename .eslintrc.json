@@ -46,6 +46,7 @@
         "ignoreTemplateLiterals": true,
         "ignoreComments": true
       }
-    ]
+    ],
+    "no-console": "off"
   }
 }

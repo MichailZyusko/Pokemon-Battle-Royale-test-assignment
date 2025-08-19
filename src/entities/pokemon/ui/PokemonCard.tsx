@@ -6,6 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from '../../../shared/ui/Card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../../shared/ui/Tooltip';
 import { StarIcon, ClockIcon } from '../../../assets/icons/index';
 
 type PokemonStatsProps = {
@@ -40,23 +46,23 @@ type PokemonCardStatusBadgeProps = {
 };
 
 function PokemonCardStatusBadge({ isWinner, isTied }: PokemonCardStatusBadgeProps) {
+  if (isTied && isWinner) {
+    return (
+      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+        <div className="bg-orange-400 text-orange-900 px-3 py-1 rounded-full text-sm font-bold flex items-center" role="status" aria-live="polite">
+          <ClockIcon className="size-3" />
+          Tied!
+        </div>
+      </div>
+    );
+  }
+
   if (isWinner) {
     return (
       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
         <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold flex items-center" role="status" aria-live="polite">
           <StarIcon className="size-4" />
           Winner!
-        </div>
-      </div>
-    );
-  }
-
-  if (isTied && !isWinner) {
-    return (
-      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-        <div className="bg-orange-400 text-orange-900 px-3 py-1 rounded-full text-sm font-bold flex items-center" role="status" aria-live="polite">
-          <ClockIcon className="size-3" />
-          Tied!
         </div>
       </div>
     );
@@ -94,33 +100,38 @@ export function PokemonCard({
   );
 
   return (
-    <button
-      type="button"
-      className={cardClasses}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={`${pokemon.name} Pokémon card${isSelected ? ', selected' : ''}${isWinner ? ', winner' : ''}${isTied && !isWinner ? ', tied' : ''}`}
-    >
-      <Card className="h-full">
-        <PokemonCardStatusBadge isWinner={isWinner} isTied={isTied} />
-        <CardContent className="text-center">
-          <img
-            src={pokemon.image}
-            alt={pokemon.name}
-            className="w-32 h-32 mx-auto object-contain"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              if (target.src !== pokemon.image) {
-                target.src = pokemon.image;
-              }
-            }}
-          />
-          <CardHeader className="p-0">
-            <CardTitle className="text-2xl font-bold text-gray-900 mb-2">{pokemon.name}</CardTitle>
-          </CardHeader>
-          <PokemonStats pokemon={pokemon} />
-        </CardContent>
-      </Card>
-    </button>
+    <TooltipProvider>
+      <Tooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className={cardClasses}
+            onClick={onClick}
+            disabled={disabled}
+            aria-label={`${pokemon.name} Pokémon card${isSelected ? ', selected' : ''}${isWinner ? ', winner' : ''}${isTied && !isWinner ? ', tied' : ''}`}
+          >
+            <Card className="h-full">
+              <PokemonCardStatusBadge isWinner={isWinner} isTied={isTied} />
+              <CardContent className="text-center">
+                <img
+                  src={pokemon.image}
+                  alt={pokemon.name}
+                  className="w-32 h-32 mx-auto object-contain"
+                />
+                <CardHeader className="p-0">
+                  <CardTitle className="text-2xl font-bold text-gray-900 mb-2">{pokemon.name}</CardTitle>
+                </CardHeader>
+                <PokemonStats pokemon={pokemon} />
+              </CardContent>
+            </Card>
+          </button>
+        </TooltipTrigger>
+        {disabled && (
+          <TooltipContent>
+            <p>You can only vote once per battle</p>
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
   );
 }
